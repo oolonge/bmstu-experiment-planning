@@ -1,0 +1,52 @@
+# -*- coding: utf-8 -*-
+
+# Размеры окон
+MAIN_WINDOW_WIDTH = 750
+MAIN_WINDOW_HEIGHT = 650
+RESULTS_WINDOW_WIDTH = 600
+RESULTS_WINDOW_HEIGHT = 500
+PLOTS_WINDOW_WIDTH = 900
+PLOTS_WINDOW_HEIGHT = 700
+
+# Размеры шрифтов
+FONT_SIZE_TITLE = 14
+FONT_SIZE_LABEL = 11
+FONT_SIZE_INPUT = 11
+FONT_SIZE_BUTTON = 12
+FONT_SIZE_RESULT = 12
+
+# Цвета
+COLOR_BACKGROUND = "#F5F5F5"
+COLOR_WIDGET_BG = "#FFFFFF"
+COLOR_BUTTON = "#2196F3"
+COLOR_BUTTON_HOVER = "#1976D2"
+COLOR_BUTTON_SUCCESS = "#4CAF50"
+COLOR_BUTTON_SUCCESS_HOVER = "#388E3C"
+COLOR_BUTTON_SECONDARY = "#95A5A6"
+COLOR_BUTTON_SECONDARY_HOVER = "#7F8C8D"
+COLOR_ERROR = "#F44336"
+COLOR_SUCCESS = "#4CAF50"
+
+# Параметры по умолчанию (Вариант 11)
+DEFAULT_LAMBDA1 = 1.5
+DEFAULT_SIGMA1 = 0.15
+DEFAULT_MU1 = 8.0
+
+DEFAULT_LAMBDA2 = 2.0
+DEFAULT_SIGMA2 = 0.12
+DEFAULT_MU2 = 10.0
+
+DEFAULT_MAX_SERVED = 10000
+DEFAULT_MAX_GENERATED = 10000
+
+# Параметры графиков
+MAX_RHO = 0.95
+PLOT_STEPS = 50
+
+# Сглаживание графиков
+# True — гладкая аппроксимация (полиномиальная регрессия), без выбросов
+# False — сырые точки с маркерами (как есть из симуляции)
+PLOT_SMOOTH = True
+PLOT_SMOOTH_POLY_DEGREE = 7   # степень полинома аппроксимации
+PLOT_SMOOTH_POINTS = 100      # число точек гладкой кривой
+PLOT_RUNS_PER_POINT = 5       # число прогонов на точку для усреднения
