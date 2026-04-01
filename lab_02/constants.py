@@ -45,6 +45,11 @@ DEFAULT_DELTA_LAMBDA2 = 0.4
 DEFAULT_DELTA_SIGMA2 = 0.02
 DEFAULT_DELTA_MU2 = 1.5
 
+# Граница линейности загрузки (из графика лабы 1)
+# До этого значения ρ зависимость время ожидания(ρ) примерно линейная.
+# Все 64 точки плана ПФЭ должны лежать в области ρ ≤ MAX_RHO_LINEAR.
+DEFAULT_MAX_RHO_LINEAR = 0.6
+
 # Параметры моделирования
 DEFAULT_LIMIT_VALUE = 10000
 DEFAULT_REPLICATIONS = 3

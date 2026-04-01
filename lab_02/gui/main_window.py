@@ -91,6 +91,10 @@ class MainWindow(QMainWindow):
         response_layout.addStretch()
         main_layout.addLayout(response_layout)
 
+        # Граница линейности
+        rho_group = self._create_rho_group()
+        main_layout.addWidget(rho_group)
+
         # Факторы — тип 1
         factors1_group = self._create_factors_group(
             "Факторы типа 1 (высокий приоритет)",
@@ -144,6 +148,72 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(button_layout)
 
         central_widget.setLayout(main_layout)
+
+        self._update_rho_indicator()
+
+    def _create_rho_group(self):
+        group = QGroupBox("Граница линейности (из графика ЛР1)")
+        group.setFont(QFont("Arial", FONT_SIZE_LABEL, QFont.Weight.Bold))
+        group.setStyleSheet(self._get_group_style())
+
+        layout = QHBoxLayout()
+        layout.setSpacing(15)
+
+        hint = QLabel("ρ_max (до какой загрузки зависимость ≈ линейная):")
+        hint.setFont(QFont("Arial", FONT_SIZE_LABEL))
+        layout.addWidget(hint)
+
+        self.rho_max_spin = QDoubleSpinBox()
+        self.rho_max_spin.setFont(QFont("Arial", FONT_SIZE_INPUT))
+        self.rho_max_spin.setRange(0.1, 0.99)
+        self.rho_max_spin.setValue(DEFAULT_MAX_RHO_LINEAR)
+        self.rho_max_spin.setSingleStep(0.05)
+        self.rho_max_spin.setDecimals(2)
+        self.rho_max_spin.setFixedWidth(80)
+        self.rho_max_spin.valueChanged.connect(self._update_rho_indicator)
+        layout.addWidget(self.rho_max_spin)
+
+        layout.addSpacing(20)
+
+        self.rho_worst_label = QLabel()
+        self.rho_worst_label.setFont(QFont("Arial", FONT_SIZE_LABEL, QFont.Weight.Bold))
+        layout.addWidget(self.rho_worst_label)
+
+        layout.addStretch()
+        group.setLayout(layout)
+        return group
+
+    def _update_rho_indicator(self, *_):
+        """Пересчитывает ρ в наихудшей точке плана (max λ, min μ)."""
+        if 'lambda1' not in self.factor_spins:
+            return
+
+        lam1_c, lam1_d = [s.value() for s in self.factor_spins['lambda1']]
+        lam2_c, lam2_d = [s.value() for s in self.factor_spins['lambda2']]
+        mu1_c, mu1_d = [s.value() for s in self.factor_spins['mu1']]
+        mu2_c, mu2_d = [s.value() for s in self.factor_spins['mu2']]
+
+        lam1_max = lam1_c + lam1_d
+        lam2_max = lam2_c + lam2_d
+        mu1_min = mu1_c - mu1_d
+        mu2_min = mu2_c - mu2_d
+
+        if mu1_min <= 0 or mu2_min <= 0:
+            self.rho_worst_label.setText("ρ_worst: μ_min ≤ 0!")
+            self.rho_worst_label.setStyleSheet(f"color: {COLOR_ERROR};")
+            return
+
+        rho_worst = lam1_max / mu1_min + lam2_max / mu2_min
+        rho_limit = self.rho_max_spin.value()
+
+        if rho_worst <= rho_limit:
+            self.rho_worst_label.setText(
+                f"ρ_worst = {rho_worst:.4f} ≤ {rho_limit} ✓")
+            self.rho_worst_label.setStyleSheet(f"color: {COLOR_SUCCESS};")
+        else:
+            self.rho_worst_label.setText(
+                f"ρ_worst = {rho_worst:.4f} > {rho_limit} — выход за линейную область!")
+            self.rho_worst_label.setStyleSheet(f"color: {COLOR_ERROR};")
 
     def _create_factors_group(self, title, factors, defaults):
         group = QGroupBox(title)
@@ -214,6 +284,7 @@ class MainWindow(QMainWindow):
             c, d = center_spin.value(), delta_spin.value()
             min_label.setText(f"{c - d:.3f}")
             max_label.setText(f"{c + d:.3f}")
+            self._update_rho_indicator()
 
         center_spin.valueChanged.connect(update_labels)
         delta_spin.valueChanged.connect(update_labels)
@@ -287,9 +358,32 @@ class MainWindow(QMainWindow):
             ranges.append((lo, hi))
         return ranges
 
+    def _check_rho_limit(self, ranges):
+        """Проверяет, что ρ в наихудшей точке ≤ ρ_max."""
+        factor_keys = [f['key'] for f in FACTORS]
+        vals = {k: r for k, r in zip(factor_keys, ranges)}
+
+        lam1_max = vals['lambda1'][1]
+        lam2_max = vals['lambda2'][1]
+        mu1_min = vals['mu1'][0]
+        mu2_min = vals['mu2'][0]
+
+        rho_worst = lam1_max / mu1_min + lam2_max / mu2_min
+        rho_limit = self.rho_max_spin.value()
+
+        if rho_worst > rho_limit:
+            raise ValueError(
+                f"Наихудшая загрузка ρ = {rho_worst:.4f} > {rho_limit}\n"
+                f"(λ₁_max/μ₁_min + λ₂_max/μ₂_min = "
+                f"{lam1_max:.3f}/{mu1_min:.3f} + {lam2_max:.3f}/{mu2_min:.3f})\n\n"
+                f"Уменьшите интервалы варьирования λ или увеличьте μ,\n"
+                f"чтобы все точки плана лежали в линейной области."
+            )
+
     def _start_ffe(self):
         try:
             factor_ranges = self._get_factor_ranges()
+            self._check_rho_limit(factor_ranges)
         except ValueError as e:
             QMessageBox.critical(self, "Ошибка", str(e))
             return
