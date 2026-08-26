@@ -1,57 +1,33 @@
-# Планирование эксперимента (8 семестр)
+# Design of Experiments
 
-Лабораторные работы по дисциплине "Планирование эксперимента".
+BMSTU IU7, semester 8.
 
-Все лабы — имитационное моделирование СМО с GUI на PyQt6. Интерфейс каждой новой лабы строится **1-в-1 по образцу lab_01** (структура окон, стили, навигация), меняются только элементы управления под конкретную задачу.
+Queueing system simulation driving a regression model: each lab runs the same
+simulated queue under a different experimental design and fits a polynomial to
+the response surface. GUI in PyQt6, plots in matplotlib.
 
-## Структура проекта
+## Structure
 
-```
-8-sem-experiment-plan/
-├── requirements.txt          # Общие зависимости (numpy, matplotlib, PyQt6)
-├── venv/                     # Виртуальное окружение (общее)
-├── refs/                     # Общие справочные материалы
-│   └── Q&A_general.pdf       # Вопросы и ответы по всем лабам (шпаргалка к защите)
-│
-├── lab_01/                   # ЛР1 — Одноканальная СМО с приоритетами
-│   ├── main.py               # Точка входа
-│   ├── simulation.py         # Ядро симуляции
-│   ├── constants.py          # Параметры и стили
-│   ├── gui/                  # PyQt6 интерфейс
-│   ├── task/                 # Задание (.docx)
-│   └── docs/                 # Теория и заметки
-│
-├── lab_02/                   # ЛР2 — (будет создана по аналогии)
-│   ├── main.py
-│   ├── simulation.py
-│   ├── constants.py
-│   ├── gui/
-│   ├── task/
-│   └── docs/
-└── ...
+| Path                            | Topic                                          |
+|---------------------------------|------------------------------------------------|
+| `lab-01-queueing-simulation`    | Single-channel queue with priorities           |
+| `lab-02-full-factorial`         | Full factorial design, 2^6                     |
+| `lab-03-fractional-factorial`   | Fractional factorial design                    |
+| `lab-04-orthogonal-ccd`         | Orthogonal central composite design            |
+
+Every lab keeps the same layout: `simulation.py` for the queue model,
+`regression.py` for fitting, `constants.py` for parameters and styles, `gui/`
+for the PyQt6 windows, `docs/` for theory notes and assignment.
+
+## Run
+
+```sh
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+
+cd lab-02-full-factorial && python main.py
 ```
 
-## Структура каждой лабораторной
+## Stack
 
-| Директория/файл | Назначение |
-|---|---|
-| `main.py` | Точка входа приложения |
-| `simulation.py` | Логика моделирования |
-| `constants.py` | Параметры по умолчанию, размеры окон, цвета |
-| `gui/` | Окна интерфейса: ввод параметров, результаты, графики |
-| `task/` | Файл задания от преподавателя |
-| `docs/` | Теоретический гайд, заметки к защите |
-
-## Референсы
-
-- [refs/Q&A_general.pdf](refs/Q&A_general.pdf) — вопросы и ответы по всем 4 лабам (что спрашивают на защите)
-- `lab_0N/docs/` — теория, специфичная для конкретной лабы
-- `lab_0N/task/` — оригинальное задание
-
-## Запуск
-
-```bash
-source venv/bin/activate
-cd lab_01
-python main.py
-```
+Python, NumPy, matplotlib, PyQt6

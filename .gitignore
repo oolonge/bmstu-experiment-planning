@@ -1,8 +1,6 @@
+.DS_Store
 venv/
 __pycache__/
 *.pyc
-.DS_Store
-Archive.zip
-*.egg-info/
-.idea/
-.vscode/
+refs/
+ref/
